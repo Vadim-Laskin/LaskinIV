@@ -1,17 +1,6 @@
 const { getJSON } = require('./utils/store');
-const {
-  busyIntervalsFromIcs,
-  windowsFromTemplate,
-  subtractBusy,
-  groupByDay,
-  isFreeNow,
-  nextFree,
-  zonedParts,
-  zonedTimeToUtc,
-  DEFAULT_ZONE,
-} = require('./utils/schedule');
-
-const DAYS_AHEAD = 7;
+const { computeWindows } = require('./utils/compute');
+const { groupByDay, isFreeNow, nextFree, DEFAULT_ZONE } = require('./utils/schedule');
 
 exports.handler = async (event) => {
   try {
@@ -25,36 +14,13 @@ exports.handler = async (event) => {
       displayName: '',
     });
 
-    const timeZone = settings.timezone || DEFAULT_ZONE;
-
     let personal = null;
     if (tgId) {
       personal = await getJSON(`override:${tgId}`, null);
     }
 
-    const now = new Date();
-    // "Today" as read on a clock in the configured timezone, not the
-    // server's own timezone.
-    const todayYMD = zonedParts(now, timeZone);
-    const rangeStart = zonedTimeToUtc(todayYMD.year, todayYMD.month, todayYMD.day, 0, 0, timeZone);
-    const rangeEnd = new Date(rangeStart.getTime() + DAYS_AHEAD * 86400000);
-
     const template = personal?.weeklyTemplate?.length ? personal.weeklyTemplate : settings.weeklyTemplate;
-    let windows = windowsFromTemplate(template, todayYMD, DAYS_AHEAD, timeZone);
-
-    if (settings.icsUrl) {
-      try {
-        const res = await fetch(settings.icsUrl);
-        if (res.ok) {
-          const text = await res.text();
-          const busy = busyIntervalsFromIcs(text, rangeStart, rangeEnd, timeZone);
-          windows = subtractBusy(windows, busy);
-        }
-      } catch {
-        // If the calendar feed is unreachable, fall back to the manual
-        // template only rather than failing the whole page.
-      }
-    }
+    const { windows, timeZone, now } = await computeWindows(settings, template);
 
     const body = {
       mode: personal ? 'personal' : 'general',

@@ -9,6 +9,8 @@ const DEFAULTS = {
   icsUrl: '',
   botUsername: '',
   displayName: '',
+  autoNotify: true,
+  autoNotifyText: '🟢 Я сейчас свободен и на связи!',
 };
 
 exports.handler = async (event) => {
