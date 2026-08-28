@@ -1,1 +1,102 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Панель управления</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="admin.css" />
+</head>
+<body>
 
+  <div id="loginScreen" class="login-screen">
+    <form id="loginForm" class="login-card">
+      <h1>Панель управления</h1>
+      <p class="muted">Введите пароль администратора</p>
+      <input type="password" id="passwordInput" placeholder="Пароль" autocomplete="current-password" required />
+      <button type="submit" class="btn">Войти</button>
+      <p class="error" id="loginError"></p>
+    </form>
+  </div>
+
+  <div id="app" class="app" hidden>
+    <header class="topbar">
+      <h1>Панель управления</h1>
+      <button class="btn ghost" id="logoutBtn">Выйти</button>
+    </header>
+
+    <nav class="tabs">
+      <button class="tab active" data-tab="settings">Расписание и настройки</button>
+      <button class="tab" data-tab="overrides">Персональные окна</button>
+      <button class="tab" data-tab="subscribers">Подписчики</button>
+    </nav>
+
+    <section id="tab-settings" class="tab-panel active">
+      <div class="card">
+        <h2>Общие настройки</h2>
+        <label>Имя, которое видит посетитель
+          <input id="displayName" placeholder="Например: Александр" />
+        </label>
+        <label>Часовой пояс
+          <input id="timezone" placeholder="Europe/Moscow" />
+        </label>
+        <label>Текст под статусом
+          <textarea id="quickReplyText" rows="2" placeholder="Обычно отвечаю в течение нескольких часов."></textarea>
+        </label>
+        <label>Ссылка на приватный ICS-адрес календаря (необязательно)
+          <input id="icsUrl" placeholder="https://calendar.google.com/calendar/ical/.../private-.../basic.ics" />
+        </label>
+        <label>Username Telegram-бота (без @)
+          <input id="botUsername" placeholder="my_availability_bot" />
+        </label>
+        <button class="btn" id="saveSettingsBtn">Сохранить настройки</button>
+        <span class="save-hint" id="settingsSaved"></span>
+      </div>
+
+      <div class="card">
+        <h2>Недельное расписание (вручную)</h2>
+        <p class="muted">Слоты, когда вы обычно свободны. Если указан ICS-календарь — занятые события будут вычтены автоматически.</p>
+        <div id="weeklyRows" class="weekly-rows"></div>
+        <button class="btn ghost" id="addSlotBtn">+ Добавить слот</button>
+      </div>
+
+      <div class="card">
+        <h2>Разослать «Я свободен»</h2>
+        <p class="muted">Отправит сообщение всем подписчикам бота прямо сейчас.</p>
+        <input id="broadcastText" placeholder="🟢 Я сейчас свободен и на связи!" />
+        <button class="btn" id="broadcastBtn">Отправить рассылку</button>
+        <p class="save-hint" id="broadcastResult"></p>
+      </div>
+    </section>
+
+    <section id="tab-overrides" class="tab-panel">
+      <div class="card">
+        <h2>Добавить персональное расписание</h2>
+        <p class="muted">Для конкретного Telegram ID — своя записка и/или свои слоты вместо общего расписания.</p>
+        <label>Telegram ID
+          <input id="ovTgId" placeholder="123456789" />
+        </label>
+        <label>Заметка вместо общего текста (необязательно)
+          <input id="ovNote" placeholder="Для тебя всегда есть время вечером :)" />
+        </label>
+        <button class="btn" id="saveOverrideBtn">Сохранить</button>
+      </div>
+      <div class="card">
+        <h2>Существующие персональные записи</h2>
+        <div id="overridesList" class="list"></div>
+      </div>
+    </section>
+
+    <section id="tab-subscribers" class="tab-panel">
+      <div class="card">
+        <h2>Подписчики рассылки</h2>
+        <p class="muted">Люди, подписавшиеся на уведомления через Telegram-бота (/start).</p>
+        <div id="subscribersList" class="list"></div>
+      </div>
+    </section>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
