@@ -136,6 +136,8 @@
       document.getElementById('quickReplyText').value = s.quickReplyText || '';
       document.getElementById('icsUrl').value = s.icsUrl || '';
       document.getElementById('botUsername').value = s.botUsername || '';
+      document.getElementById('autoNotify').checked = s.autoNotify !== false;
+      document.getElementById('autoNotifyText').value = s.autoNotifyText || '';
 
       document.getElementById('weeklyRows').innerHTML = '';
       (s.weeklyTemplate || []).forEach(addSlotRow);
@@ -155,6 +157,8 @@
       icsUrl: document.getElementById('icsUrl').value,
       botUsername: document.getElementById('botUsername').value.replace('@', ''),
       weeklyTemplate: readWeeklyTemplate(),
+      autoNotify: document.getElementById('autoNotify').checked,
+      autoNotifyText: document.getElementById('autoNotifyText').value,
     };
     const hint = document.getElementById('settingsSaved');
     try {

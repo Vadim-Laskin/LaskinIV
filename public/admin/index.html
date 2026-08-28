@@ -50,6 +50,18 @@
         <label>Username Telegram-бота (без @)
           <input id="botUsername" placeholder="my_availability_bot" />
         </label>
+      </div>
+
+      <div class="card">
+        <h2>Автоматическое уведомление «Я свободен»</h2>
+        <p class="muted">Как только статус меняется с «занят» на «свободен» — сервер сам разошлёт это сообщение всем подписчикам бота, без вашего участия. Проверка происходит каждые 5 минут.</p>
+        <label style="display:flex;align-items:center;gap:8px;flex-direction:row;">
+          <input type="checkbox" id="autoNotify" style="width:auto;margin:0;" />
+          <span>Включить автоматическую рассылку</span>
+        </label>
+        <label>Текст автоматического уведомления
+          <input id="autoNotifyText" placeholder="🟢 Я сейчас свободен и на связи!" />
+        </label>
         <button class="btn" id="saveSettingsBtn">Сохранить настройки</button>
         <span class="save-hint" id="settingsSaved"></span>
       </div>
