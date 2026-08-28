@@ -3,56 +3,112 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Когда я на связи</title>
-<meta name="description" content="Расписание доступности — когда я свободен и отвечаю на сообщения." />
+<title>Панель управления</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="admin.css" />
 </head>
 <body>
 
-  <main class="page">
-    <div class="glow"></div>
+  <div id="loginScreen" class="login-screen">
+    <form id="loginForm" class="login-card">
+      <h1>Панель управления</h1>
+      <p class="muted">Введите пароль администратора</p>
+      <input type="password" id="passwordInput" placeholder="Пароль" autocomplete="current-password" required />
+      <button type="submit" class="btn">Войти</button>
+      <p class="error" id="loginError"></p>
+    </form>
+  </div>
 
-    <header class="hero">
-      <p class="eyebrow">Табло доступности</p>
-      <h1 id="displayName" class="hero-title">Когда я на связи</h1>
-
-      <div class="status" id="status">
-        <span class="status-dot" id="statusDot"></span>
-        <span class="status-text" id="statusText">Проверяю расписание…</span>
-      </div>
-
-      <p class="note" id="note"></p>
+  <div id="app" class="app" hidden>
+    <header class="topbar">
+      <h1>Панель управления</h1>
+      <button class="btn ghost" id="logoutBtn">Выйти</button>
     </header>
 
-    <section class="board" aria-label="Расписание на неделю">
-      <div class="board-head">
-        <span>День</span>
-        <span>Свободные окна</span>
+    <nav class="tabs">
+      <button class="tab active" data-tab="settings">Расписание и настройки</button>
+      <button class="tab" data-tab="overrides">Персональные окна</button>
+      <button class="tab" data-tab="subscribers">Подписчики</button>
+    </nav>
+
+    <section id="tab-settings" class="tab-panel active">
+      <div class="card">
+        <h2>Общие настройки</h2>
+        <label>Имя, которое видит посетитель
+          <input id="displayName" placeholder="Например: Александр" />
+        </label>
+        <label>Часовой пояс
+          <input id="timezone" placeholder="Asia/Novosibirsk" />
+        </label>
+        <label>Текст под статусом
+          <textarea id="quickReplyText" rows="2" placeholder="Обычно отвечаю в течение нескольких часов."></textarea>
+        </label>
+        <label>Ссылка на приватный ICS-адрес календаря (необязательно)
+          <input id="icsUrl" placeholder="https://calendar.google.com/calendar/ical/.../private-.../basic.ics" />
+        </label>
+        <label>Username Telegram-бота (без @)
+          <input id="botUsername" placeholder="my_availability_bot" />
+        </label>
       </div>
-      <div class="board-body" id="boardBody">
-        <div class="board-row placeholder">
-          <span class="flap">···</span>
-          <span class="flap wide">загрузка расписания</span>
-        </div>
+
+      <div class="card">
+        <h2>Автоматическое уведомление «Я свободен»</h2>
+        <p class="muted">Как только статус меняется с «занят» на «свободен» — сервер сам разошлёт это сообщение всем подписчикам бота, без вашего участия. Проверка происходит каждые 5 минут.</p>
+        <label style="display:flex;align-items:center;gap:8px;flex-direction:row;">
+          <input type="checkbox" id="autoNotify" style="width:auto;margin:0;" />
+          <span>Включить автоматическую рассылку</span>
+        </label>
+        <label>Текст автоматического уведомления
+          <input id="autoNotifyText" placeholder="🟢 Я сейчас свободен и на связи!" />
+        </label>
+        <button class="btn" id="saveSettingsBtn">Сохранить настройки</button>
+        <span class="save-hint" id="settingsSaved"></span>
+      </div>
+
+      <div class="card">
+        <h2>Недельное расписание (вручную)</h2>
+        <p class="muted">Слоты, когда вы обычно свободны. Если указан ICS-календарь — занятые события будут вычтены автоматически.</p>
+        <div id="weeklyRows" class="weekly-rows"></div>
+        <button class="btn ghost" id="addSlotBtn">+ Добавить слот</button>
+      </div>
+
+      <div class="card">
+        <h2>Разослать «Я свободен»</h2>
+        <p class="muted">Отправит сообщение всем подписчикам бота прямо сейчас.</p>
+        <input id="broadcastText" placeholder="🟢 Я сейчас свободен и на связи!" />
+        <button class="btn" id="broadcastBtn">Отправить рассылку</button>
+        <p class="save-hint" id="broadcastResult"></p>
       </div>
     </section>
 
-    <section class="subscribe" id="subscribeBlock" hidden>
-      <div class="subscribe-text">
-        <h2 id="subscribeTitle">Не хотите ждать?</h2>
-        <p id="subscribeDesc">Подпишитесь — напишу в Telegram, как только освобожусь.</p>
+    <section id="tab-overrides" class="tab-panel">
+      <div class="card">
+        <h2>Добавить персональное расписание</h2>
+        <p class="muted">Для конкретного Telegram ID — своя записка и/или свои слоты вместо общего расписания.</p>
+        <label>Telegram ID
+          <input id="ovTgId" placeholder="123456789" />
+        </label>
+        <label>Заметка вместо общего текста (необязательно)
+          <input id="ovNote" placeholder="Для тебя всегда есть время вечером :)" />
+        </label>
+        <button class="btn" id="saveOverrideBtn">Сохранить</button>
       </div>
-      <div class="subscribe-actions" id="subscribeActions"></div>
+      <div class="card">
+        <h2>Существующие персональные записи</h2>
+        <div id="overridesList" class="list"></div>
+      </div>
     </section>
 
-    <footer class="footer">
-      <span id="tz"></span>
-    </footer>
-  </main>
+    <section id="tab-subscribers" class="tab-panel">
+      <div class="card">
+        <h2>Подписчики рассылки</h2>
+        <p class="muted">Люди, подписавшиеся на уведомления через Telegram-бота (/start).</p>
+        <div id="subscribersList" class="list"></div>
+      </div>
+    </section>
+  </div>
 
-  <script src="app.js"></script>
+  <script src="admin.js"></script>
 </body>
 </html>
