@@ -1,8 +1,9 @@
 const { getJSON, setJSON } = require('./utils/store');
 const { requireAuth } = require('./utils/auth');
+const { DEFAULT_ZONE } = require('./utils/schedule');
 
 const DEFAULTS = {
-  timezone: 'Europe/Moscow',
+  timezone: DEFAULT_ZONE,
   quickReplyText: 'Обычно отвечаю в течение нескольких часов.',
   weeklyTemplate: [],
   icsUrl: '',
