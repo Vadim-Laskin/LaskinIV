@@ -1,0 +1,9 @@
+{
+  "name": "when-im-free",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Personal availability page + Telegram notify bot, deployed on Netlify",
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}
