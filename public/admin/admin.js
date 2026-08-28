@@ -23,7 +23,16 @@
       showLogin();
       throw new Error('Unauthorized');
     }
-    return res.json();
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      throw new Error(`Сервер вернул некорректный ответ (${res.status})`);
+    }
+    if (!res.ok) {
+      throw new Error(data.error || `Ошибка ${res.status}`);
+    }
+    return data;
   }
 
   function showLogin() {
@@ -120,16 +129,22 @@
   // --- Settings ---
 
   async function loadSettings() {
-    const s = await api('admin-settings');
-    document.getElementById('displayName').value = s.displayName || '';
-    document.getElementById('timezone').value = s.timezone || '';
-    document.getElementById('quickReplyText').value = s.quickReplyText || '';
-    document.getElementById('icsUrl').value = s.icsUrl || '';
-    document.getElementById('botUsername').value = s.botUsername || '';
+    try {
+      const s = await api('admin-settings');
+      document.getElementById('displayName').value = s.displayName || '';
+      document.getElementById('timezone').value = s.timezone || '';
+      document.getElementById('quickReplyText').value = s.quickReplyText || '';
+      document.getElementById('icsUrl').value = s.icsUrl || '';
+      document.getElementById('botUsername').value = s.botUsername || '';
 
-    document.getElementById('weeklyRows').innerHTML = '';
-    (s.weeklyTemplate || []).forEach(addSlotRow);
-    if (!s.weeklyTemplate || s.weeklyTemplate.length === 0) addSlotRow();
+      document.getElementById('weeklyRows').innerHTML = '';
+      (s.weeklyTemplate || []).forEach(addSlotRow);
+      if (!s.weeklyTemplate || s.weeklyTemplate.length === 0) addSlotRow();
+    } catch (err) {
+      const hint = document.getElementById('settingsSaved');
+      hint.style.color = 'var(--busy)';
+      hint.textContent = `Не удалось загрузить настройки: ${err.message}`;
+    }
   }
 
   document.getElementById('saveSettingsBtn').addEventListener('click', async () => {
@@ -141,10 +156,16 @@
       botUsername: document.getElementById('botUsername').value.replace('@', ''),
       weeklyTemplate: readWeeklyTemplate(),
     };
-    await api('admin-settings', { method: 'POST', body: JSON.stringify(payload) });
     const hint = document.getElementById('settingsSaved');
-    hint.textContent = 'Сохранено ✓';
-    setTimeout(() => (hint.textContent = ''), 2500);
+    try {
+      await api('admin-settings', { method: 'POST', body: JSON.stringify(payload) });
+      hint.style.color = '';
+      hint.textContent = 'Сохранено ✓';
+      setTimeout(() => (hint.textContent = ''), 2500);
+    } catch (err) {
+      hint.style.color = 'var(--busy)';
+      hint.textContent = `Ошибка: ${err.message}`;
+    }
   });
 
   // --- Broadcast ---
@@ -161,8 +182,14 @@
   // --- Overrides ---
 
   async function loadOverrides() {
-    const items = await api('admin-overrides');
     const list = document.getElementById('overridesList');
+    let items;
+    try {
+      items = await api('admin-overrides');
+    } catch (err) {
+      list.innerHTML = `<p class="list-empty" style="color:var(--busy)">Ошибка загрузки: ${err.message}</p>`;
+      return;
+    }
     list.innerHTML = '';
     if (items.length === 0) {
       list.innerHTML = '<p class="list-empty">Пока нет персональных записей.</p>';
@@ -198,8 +225,14 @@
   // --- Subscribers ---
 
   async function loadSubscribers() {
-    const items = await api('admin-subscribers');
     const list = document.getElementById('subscribersList');
+    let items;
+    try {
+      items = await api('admin-subscribers');
+    } catch (err) {
+      list.innerHTML = `<p class="list-empty" style="color:var(--busy)">Ошибка загрузки: ${err.message}</p>`;
+      return;
+    }
     list.innerHTML = '';
     if (items.length === 0) {
       list.innerHTML = '<p class="list-empty">Подписчиков пока нет.</p>';
