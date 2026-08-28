@@ -30,6 +30,10 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* .subscribe sets its own `display: flex`, which otherwise beats the
+   browser's default [hidden] { display: none } rule. */
+[hidden] { display: none !important; }
+
 .page {
   position: relative;
   max-width: 720px;
