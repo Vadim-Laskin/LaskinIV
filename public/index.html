@@ -1,1 +1,58 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Когда я на связи</title>
+<meta name="description" content="Расписание доступности — когда я свободен и отвечаю на сообщения." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
 
+  <main class="page">
+    <div class="glow"></div>
+
+    <header class="hero">
+      <p class="eyebrow">Табло доступности</p>
+      <h1 id="displayName" class="hero-title">Когда я на связи</h1>
+
+      <div class="status" id="status">
+        <span class="status-dot" id="statusDot"></span>
+        <span class="status-text" id="statusText">Проверяю расписание…</span>
+      </div>
+
+      <p class="note" id="note"></p>
+    </header>
+
+    <section class="board" aria-label="Расписание на неделю">
+      <div class="board-head">
+        <span>День</span>
+        <span>Свободные окна</span>
+      </div>
+      <div class="board-body" id="boardBody">
+        <div class="board-row placeholder">
+          <span class="flap">···</span>
+          <span class="flap wide">загрузка расписания</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="subscribe" id="subscribeBlock" hidden>
+      <div class="subscribe-text">
+        <h2 id="subscribeTitle">Не хотите ждать?</h2>
+        <p id="subscribeDesc">Подпишитесь — напишу в Telegram, как только освобожусь.</p>
+      </div>
+      <div class="subscribe-actions" id="subscribeActions"></div>
+    </section>
+
+    <footer class="footer">
+      <span id="tz"></span>
+    </footer>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
