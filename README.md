@@ -21,6 +21,24 @@ netlify/functions/ — серверная логика (Node.js, Netlify Functio
 | `TELEGRAM_BOT_TOKEN`     | Токен бота от @BotFather                                 |
 | `TELEGRAM_WEBHOOK_SECRET`| (необязательно) секрет для проверки вебхука Telegram      |
 | `SITE_URL`               | Адрес сайта (например `https://my-site.netlify.app`) — нужен, чтобы кнопка «Отписаться» в сообщении бота вела обратно на сайт |
+| `BLOBS_SITE_ID`          | (заполняйте, если увидите ошибку `MissingBlobsEnvironmentError`) Project ID сайта — см. пункт 1.1 ниже |
+| `BLOBS_TOKEN`            | (вместе с `BLOBS_SITE_ID`) Personal Access Token — см. пункт 1.1 ниже |
+
+### 1.1 Если появляется ошибка `MissingBlobsEnvironmentError`
+
+На части сайтов Netlify Functions не получают данные для Blobs
+автоматически (известный баг платформы). Лечится явной настройкой:
+
+1. **Project ID**: в Netlify откройте свой сайт → *Project configuration →
+   General → Project information* → скопируйте значение **Project ID**.
+   Сохраните его как переменную окружения `BLOBS_SITE_ID`.
+2. **Personal Access Token**: в Netlify откройте *User settings →
+   Applications → Personal access tokens → New access token*, дайте
+   любое название, создайте. Сохраните как `BLOBS_TOKEN`
+   (это единственный раз, когда токен показывается — если не скопировали,
+   создайте новый).
+3. Пересоберите сайт (*Deploys → Trigger deploy → Clear cache and deploy
+   site*).
 
 Netlify Blobs включён автоматически для деплоев на Netlify — отдельно
 подключать ничего не нужно.
