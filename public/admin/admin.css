@@ -16,6 +16,11 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--body); }
 
+/* .login-screen/.app set their own `display`, which otherwise beats the
+   browser's default [hidden] { display: none } rule -- without this, the
+   login screen never actually disappears after a successful login. */
+[hidden] { display: none !important; }
+
 h1, h2 { font-family: var(--display); font-weight: 600; margin: 0 0 8px; }
 .muted { color: var(--text-muted); font-size: 13.5px; }
 
