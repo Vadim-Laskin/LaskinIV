@@ -8,18 +8,24 @@
     return new URLSearchParams(window.location.search);
   }
 
-  function fmtDay(dateStr) {
-    const d = new Date(dateStr + 'T00:00:00');
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const diffDays = Math.round((d - today) / 86400000);
-    const label = DAY_LABELS[d.getDay()];
-    if (diffDays === 0) return `Сегодня · ${label}`;
-    if (diffDays === 1) return `Завтра · ${label}`;
-    return `${label}, ${d.getDate()}.${String(d.getMonth() + 1).padStart(2, '0')}`;
+  function todayInZone(timeZone) {
+    // en-CA formats as YYYY-MM-DD, handy for direct string comparison.
+    return new Intl.DateTimeFormat('en-CA', { timeZone }).format(new Date());
   }
 
-  function renderBoard(schedule) {
+  function fmtDay(dateStr, timeZone) {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const dateUTC = Date.UTC(y, m - 1, d);
+    const [ty, tm, td] = todayInZone(timeZone).split('-').map(Number);
+    const todayUTC = Date.UTC(ty, tm - 1, td);
+    const diffDays = Math.round((dateUTC - todayUTC) / 86400000);
+    const label = DAY_LABELS[new Date(dateUTC).getUTCDay()];
+    if (diffDays === 0) return `Сегодня · ${label}`;
+    if (diffDays === 1) return `Завтра · ${label}`;
+    return `${label}, ${d}.${String(m).padStart(2, '0')}`;
+  }
+
+  function renderBoard(schedule, timeZone) {
     const board = document.getElementById('boardBody');
     board.innerHTML = '';
 
@@ -37,7 +43,7 @@
         const row = document.createElement('div');
         row.className = 'board-row';
         const slotsHtml = day.slots.map((s) => `<span class="flap">${s.start}–${s.end}</span>`).join('');
-        row.innerHTML = `<span class="day">${fmtDay(day.date)}</span><span class="slots">${slotsHtml}</span>`;
+        row.innerHTML = `<span class="day">${fmtDay(day.date, timeZone)}</span><span class="slots">${slotsHtml}</span>`;
         board.appendChild(row);
       });
   }
@@ -171,7 +177,7 @@
         if (data.next) {
           const n = new Date(data.next.start);
           dotText.textContent = `Сейчас занят · освобожусь ${n.toLocaleString('ru-RU', {
-            weekday: 'short', hour: '2-digit', minute: '2-digit',
+            weekday: 'short', hour: '2-digit', minute: '2-digit', timeZone: data.timezone,
           })}`;
         } else {
           dotText.textContent = 'Сейчас занят';
@@ -181,7 +187,7 @@
       document.getElementById('note').textContent = data.note || '';
       if (data.timezone) document.getElementById('tz').textContent = `Часовой пояс: ${data.timezone}`;
 
-      renderBoard(data.schedule);
+      renderBoard(data.schedule, data.timezone);
 
       if (data.botUsername) {
         document.getElementById('subscribeBlock').hidden = false;
